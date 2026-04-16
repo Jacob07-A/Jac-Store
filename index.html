@@ -1,14 +1,42 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JAC Gallery Admin</title>
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Gallery - Discover Amazing Products</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <script>
-    CMS.init();
-  </script>
+    <nav class="navbar">
+        <div class="logo">JAC Gallery</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="categories.html">Categories</a></li>
+            <li><a href="items.html">All Items</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div>
+            <h1>Welcome to JAC Gallery</h1>
+            <p>Explore our vibrant collection of unique and amazing products from around the world.</p>
+            <a href="items.html"><button class="btn">Browse All Items</button></a>
+        </div>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="grid" id="featured">
+            <!-- Will be populated by JS or you can add manually -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 JAC Gallery • Made with ❤️ for showcasing awesome stuff</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>

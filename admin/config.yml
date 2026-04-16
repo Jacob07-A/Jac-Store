@@ -1,0 +1,23 @@
+backend:
+  name: github
+  repo: Jacob07-A/jac-gallery   # ← CHANGE THIS
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+site_url: https://your-site-name.netlify.app   # ← Update after deploying
+
+collections:
+  - name: "products"
+    label: "Products"
+    label_singular: "Product"
+    folder: "products"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Product Name", name: "title", widget: "string", required: true}
+      - {label: "Short Description", name: "description", widget: "text", required: true}
+      - {label: "Price (RM)", name: "price", widget: "string", required: true}
+      - {label: "Category", name: "category", widget: "string", required: true}
+      - {label: "Main Photo", name: "image", widget: "image", required: true}
