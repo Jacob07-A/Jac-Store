@@ -6,49 +6,55 @@
     <title>Admin - JAC Store</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #333; }
-        .login-box, .admin-box { max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        button { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .login-box, .admin-box { padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 40px auto; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 12px 20px; margin: 10px 5px 10px 0; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background: #5a67d8; }
-        .product-form { margin-top: 30px; }
-        .product-list { margin-top: 40px; }
-        .product-item { padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 5px; }
-        .logout { background: #e53e3e; margin-top: 20px; }
+        .red { background: #e53e3e; }
+        .product-item { padding: 15px; border: 1px solid #eee; margin: 10px 0; border-radius: 8px; background: #fafafa; }
+        .export-box { margin-top: 30px; padding: 20px; background: #f8f9fa; border: 2px solid #667eea; border-radius: 8px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>JAC Store Admin Panel</h1>
 
-        <!-- Login Screen -->
+        <!-- Login -->
         <div id="login-screen" class="login-box">
-            <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username" value="admin">
+            <h2>Admin Login</h2>
+            <input type="text" id="username" value="admin" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
             <button onclick="login()">Login</button>
+            <p style="font-size:14px; color:#666; margin-top:15px;">Default Password: jacstore123</p>
         </div>
 
-        <!-- Admin Dashboard -->
-        <div id="admin-screen" class="admin-box" style="display: none;">
-            <h2>Welcome, Admin</h2>
-            <button onclick="logout()" class="logout">Logout</button>
+        <!-- Admin Panel -->
+        <div id="admin-screen" style="display:none;">
+            <h2>Welcome to JAC Store Admin</h2>
+            <button onclick="logout()" class="red">Logout</button>
 
-            <div class="product-form">
+            <div style="margin:30px 0;">
                 <h3>Add New Product</h3>
-                <input type="text" id="prod-name" placeholder="Product Name">
-                <input type="text" id="prod-desc" placeholder="Short Description">
-                <input type="text" id="prod-price" placeholder="Price (e.g. 159)">
-                <input type="text" id="prod-category" placeholder="Category">
-                <input type="text" id="prod-image" placeholder="Image path (e.g. images/uploads/photo.jpg)">
+                <input type="text" id="title" placeholder="Product Name *">
+                <textarea id="description" rows="2" placeholder="Short Description *"></textarea>
+                <input type="text" id="price" placeholder="Price (e.g. 159) *">
+                <input type="text" id="category" placeholder="Category">
+                <input type="text" id="image" placeholder="Image URL (optional)">
                 <button onclick="addProduct()">Add Product</button>
             </div>
 
-            <div class="product-list">
-                <h3>Your Products (Total: <span id="count">0</span>)</h3>
-                <div id="product-list"></div>
+            <div class="export-box">
+                <h3>Products Management</h3>
+                <p>Total Products: <strong id="count">0</strong></p>
+                <button onclick="exportJSON()">Export / Update products.json</button>
+                <p style="font-size:14px; color:#555; margin-top:10px;">
+                    Click the button above → copy the JSON → paste into your <strong>products.json</strong> file → push to GitHub
+                </p>
             </div>
+
+            <div id="product-list" style="margin-top:30px;"></div>
         </div>
     </div>
 
@@ -56,21 +62,13 @@
         let products = [];
 
         function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (username === "admin" && password === "jacstore123") {
+            if (document.getElementById('password').value === "jacstore123") {
                 document.getElementById('login-screen').style.display = "none";
                 document.getElementById('admin-screen').style.display = "block";
                 loadProducts();
             } else {
-                alert("Wrong password! Default password is: jacstore123");
+                alert("Wrong password! Default is: jacstore123");
             }
-        }
-
-        function logout() {
-            document.getElementById('login-screen').style.display = "block";
-            document.getElementById('admin-screen').style.display = "none";
         }
 
         async function loadProducts() {
@@ -81,70 +79,73 @@
             } catch(e) {
                 products = [];
             }
-            renderProducts();
+            renderList();
         }
 
-        function renderProducts() {
+        function renderList() {
             const list = document.getElementById('product-list');
             list.innerHTML = '';
             document.getElementById('count').textContent = products.length;
 
-            products.forEach((p, index) => {
+            products.forEach((p, i) => {
                 const div = document.createElement('div');
                 div.className = 'product-item';
                 div.innerHTML = `
-                    <strong>${p.title}</strong> - RM ${p.price}<br>
+                    <strong>${p.title}</strong> — RM ${p.price}<br>
                     ${p.description}<br>
-                    <small>Category: ${p.category}</small><br>
-                    <button onclick="deleteProduct(${index})" style="background:#e53e3e; color:white; padding:5px 10px; margin-top:5px;">Delete</button>
+                    <small>Category: ${p.category || 'No category'}</small>
+                    <button onclick="deleteProduct(${i})" style="float:right; background:#e53e3e;">Delete</button>
                 `;
                 list.appendChild(div);
             });
         }
 
         function addProduct() {
-            const title = document.getElementById('prod-name').value;
-            const description = document.getElementById('prod-desc').value;
-            const price = document.getElementById('prod-price').value;
-            const category = document.getElementById('prod-category').value;
-            const image = document.getElementById('prod-image').value || "https://picsum.photos/id/20/600/400";
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const price = document.getElementById('price').value.trim();
+            const category = document.getElementById('category').value.trim();
+            const image = document.getElementById('image').value.trim() || "https://picsum.photos/id/20/600/400";
 
             if (!title || !description || !price) {
-                alert("Please fill Name, Description and Price");
+                alert("Product Name, Description and Price are required!");
                 return;
             }
 
             products.push({ title, description, price, category, image });
+            renderList();
 
-            // Save to products.json (we'll do this manually for now)
-            console.log("New product added. Please copy the JSON below and update products.json");
-            console.log(JSON.stringify({products: products}, null, 2));
-
-            alert("Product added! Check console (F12) and copy the JSON to update products.json");
-
-            renderProducts();
-            clearForm();
+            // Clear form
+            document.getElementById('title').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('image').value = '';
         }
 
         function deleteProduct(index) {
             if (confirm("Delete this product?")) {
                 products.splice(index, 1);
-                renderProducts();
+                renderList();
             }
         }
 
-        function clearForm() {
-            document.getElementById('prod-name').value = '';
-            document.getElementById('prod-desc').value = '';
-            document.getElementById('prod-price').value = '';
-            document.getElementById('prod-category').value = '';
-            document.getElementById('prod-image').value = '';
+        function exportJSON() {
+            const dataStr = JSON.stringify({ products: products }, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', 'products.json');
+            link.click();
+
+            alert("✅ JSON downloaded!\n\n1. Open your products.json file\n2. Delete everything inside it\n3. Paste the downloaded content\n4. Save and push to GitHub");
         }
 
-        // Allow Enter key on password
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
-        });
+        function logout() {
+            document.getElementById('login-screen').style.display = "block";
+            document.getElementById('admin-screen').style.display = "none";
+        }
     </script>
 </body>
 </html>
