@@ -22,12 +22,12 @@
         <h2 class="section-title" style="color:#333;">All Products</h2>
         
         <div class="grid" id="products-grid">
-            <!-- Products loaded by JavaScript -->
+            <!-- Products will be loaded here -->
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2026 JAC Store • <a href="admin/" style="color:#ff6b6b;">Admin Panel</a></p>
+        <p>&copy; 2026 JAC Store • <a href="admin.html" style="color:#ff6b6b;">Admin Panel</a></p>
     </footer>
 
     <script>
@@ -36,14 +36,18 @@
             grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:white;">Loading products...</p>';
 
             try {
-                // Try to load products from CMS
-                const response = await fetch('/products/index.json');
-                const products = await response.json();
+                const response = await fetch('products.json');
+                const data = await response.json();
+                const products = data.products || [];
 
                 grid.innerHTML = '';
 
                 if (products.length === 0) {
-                    grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:white;">No products yet.<br><a href="admin/" style="color:#ff6b6b;">Go to Admin Panel</a> to add your products.</p>`;
+                    grid.innerHTML = `
+                        <p style="grid-column: 1/-1; text-align:center; color:white;">
+                            No products yet.<br><br>
+                            <a href="admin.html" style="color:#ff6b6b; font-size:1.1rem;">Go to Admin Panel</a> to add your 100 products.
+                        </p>`;
                     return;
                 }
 
@@ -51,23 +55,22 @@
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
-                        <img src="${product.image}" alt="${product.title}">
+                        <img src="${product.image || 'https://picsum.photos/id/20/600/400'}" alt="${product.title}">
                         <div class="card-content">
                             <h3>${product.title}</h3>
                             <p>${product.description}</p>
                             <div class="price">RM ${product.price}</div>
-                            <button class="btn" onclick="alert('Clicked: ${product.title}\\n\\nDetail page coming soon')">View Details</button>
+                            <button class="btn" onclick="alert('Product: ${product.title}\\nPrice: RM ${product.price}\\n\\nDetail page coming soon')">View Details</button>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
 
             } catch (error) {
-                grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:white;">No products found yet.<br>Please go to <a href="admin/" style="color:#ff6b6b;">Admin Panel</a> to add your products.</p>`;
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:white;">Error loading products. Please make sure products.json exists.</p>`;
             }
         }
 
-        // Load products when page opens
         window.onload = loadProducts;
     </script>
 </body>
