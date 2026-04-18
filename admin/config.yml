@@ -1,12 +1,12 @@
 backend:
   name: github
-  repo: Jacob07-A/jac-gallery   # ← CHANGE THIS
+  repo: Jacob07-A/jac-store   # ← CHANGE THIS
   branch: main
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
 
-site_url: https://your-site-name.netlify.app   # ← Update after deploying
+site_url: https://jacstore.netlify.app/   # ← Update after deploying
 
 collections:
   - name: "products"
