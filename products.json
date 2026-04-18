@@ -1,3 +1,11 @@
 {
-  "products": []
+  "products": [
+    {
+      "title": "享久3代 Blisswater x3",
+      "description": "享久3代 Blisswater x3 延时喷剂",
+      "price": "180",
+      "category": "延时喷剂",
+      "image": "images/XiangJiu.jpeg"
+    }
+  ]
 }
