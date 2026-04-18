@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - JAC Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .login-box, .admin-box { max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #5a67d8; }
+        .product-form { margin-top: 30px; }
+        .product-list { margin-top: 40px; }
+        .product-item { padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 5px; }
+        .logout { background: #e53e3e; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JAC Store Admin Panel</h1>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="login-box">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username" value="admin">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-screen" class="admin-box" style="display: none;">
+            <h2>Welcome, Admin</h2>
+            <button onclick="logout()" class="logout">Logout</button>
+
+            <div class="product-form">
+                <h3>Add New Product</h3>
+                <input type="text" id="prod-name" placeholder="Product Name">
+                <input type="text" id="prod-desc" placeholder="Short Description">
+                <input type="text" id="prod-price" placeholder="Price (e.g. 159)">
+                <input type="text" id="prod-category" placeholder="Category">
+                <input type="text" id="prod-image" placeholder="Image path (e.g. images/uploads/photo.jpg)">
+                <button onclick="addProduct()">Add Product</button>
+            </div>
+
+            <div class="product-list">
+                <h3>Your Products (Total: <span id="count">0</span>)</h3>
+                <div id="product-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === "admin" && password === "jacstore123") {
+                document.getElementById('login-screen').style.display = "none";
+                document.getElementById('admin-screen').style.display = "block";
+                loadProducts();
+            } else {
+                alert("Wrong password! Default password is: jacstore123");
+            }
+        }
+
+        function logout() {
+            document.getElementById('login-screen').style.display = "block";
+            document.getElementById('admin-screen').style.display = "none";
+        }
+
+        async function loadProducts() {
+            try {
+                const res = await fetch('products.json');
+                const data = await res.json();
+                products = data.products || [];
+            } catch(e) {
+                products = [];
+            }
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
+            document.getElementById('count').textContent = products.length;
+
+            products.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = 'product-item';
+                div.innerHTML = `
+                    <strong>${p.title}</strong> - RM ${p.price}<br>
+                    ${p.description}<br>
+                    <small>Category: ${p.category}</small><br>
+                    <button onclick="deleteProduct(${index})" style="background:#e53e3e; color:white; padding:5px 10px; margin-top:5px;">Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addProduct() {
+            const title = document.getElementById('prod-name').value;
+            const description = document.getElementById('prod-desc').value;
+            const price = document.getElementById('prod-price').value;
+            const category = document.getElementById('prod-category').value;
+            const image = document.getElementById('prod-image').value || "https://picsum.photos/id/20/600/400";
+
+            if (!title || !description || !price) {
+                alert("Please fill Name, Description and Price");
+                return;
+            }
+
+            products.push({ title, description, price, category, image });
+
+            // Save to products.json (we'll do this manually for now)
+            console.log("New product added. Please copy the JSON below and update products.json");
+            console.log(JSON.stringify({products: products}, null, 2));
+
+            alert("Product added! Check console (F12) and copy the JSON to update products.json");
+
+            renderProducts();
+            clearForm();
+        }
+
+        function deleteProduct(index) {
+            if (confirm("Delete this product?")) {
+                products.splice(index, 1);
+                renderProducts();
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('prod-name').value = '';
+            document.getElementById('prod-desc').value = '';
+            document.getElementById('prod-price').value = '';
+            document.getElementById('prod-category').value = '';
+            document.getElementById('prod-image').value = '';
+        }
+
+        // Allow Enter key on password
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
