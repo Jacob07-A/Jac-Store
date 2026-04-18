@@ -21,41 +21,54 @@
     <div class="container">
         <h2 class="section-title" style="color:#333;">All Products</h2>
         
-        <div class="grid">
-            <!-- Example Items - Replace with your real products -->
-            <div class="card">
-                <img src="https://picsum.photos/id/20/600/400" alt="Product 1">
-                <div class="card-content">
-                    <h3>Wireless Headphones</h3>
-                    <p>Premium noise-cancelling audio</p>
-                    <div class="price">RM 299</div>
-                    <button class="btn" onclick="viewItem(1)">View Details</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <img src="https://picsum.photos/id/1015/600/400" alt="Product 2">
-                <div class="card-content">
-                    <h3>Minimal Desk Lamp</h3>
-                    <p>Modern LED lighting</p>
-                    <div class="price">RM 89</div>
-                    <button class="btn" onclick="viewItem(2)">View Details</button>
-                </div>
-            </div>
-
-            <!-- Add more cards like this -->
+        <div class="grid" id="products-grid">
+            <!-- Products loaded by JavaScript -->
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2026 JAC Store</p>
+        <p>&copy; 2026 JAC Store • <a href="admin/" style="color:#ff6b6b;">Admin Panel</a></p>
     </footer>
 
-    <script src="script.js"></script>
     <script>
-        function viewItem(id) {
-            window.location.href = `item-detail.html?id=${id}`;
+        async function loadProducts() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:white;">Loading products...</p>';
+
+            try {
+                // Try to load products from CMS
+                const response = await fetch('/products/index.json');
+                const products = await response.json();
+
+                grid.innerHTML = '';
+
+                if (products.length === 0) {
+                    grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:white;">No products yet.<br><a href="admin/" style="color:#ff6b6b;">Go to Admin Panel</a> to add your products.</p>`;
+                    return;
+                }
+
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${product.image}" alt="${product.title}">
+                        <div class="card-content">
+                            <h3>${product.title}</h3>
+                            <p>${product.description}</p>
+                            <div class="price">RM ${product.price}</div>
+                            <button class="btn" onclick="alert('Clicked: ${product.title}\\n\\nDetail page coming soon')">View Details</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (error) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:white;">No products found yet.<br>Please go to <a href="admin/" style="color:#ff6b6b;">Admin Panel</a> to add your products.</p>`;
+            }
         }
+
+        // Load products when page opens
+        window.onload = loadProducts;
     </script>
 </body>
 </html>
